@@ -1,0 +1,16 @@
+/*  ******* CSS ***********/
+h3{
+    color:sienna;
+    font-size: 50px;
+}
+
+p{
+    color :yellow;
+    font-size: 20px;
+}
+body {
+    background-color: aquamarine;
+    /* background-color: aquamarine; */
+    text-transform:uppercase;
+}
+
