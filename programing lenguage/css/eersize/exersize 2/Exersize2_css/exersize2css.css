@@ -1,3 +1,23 @@
 .text-blue {
    color: blue;
 }
+
+.fs-11 {
+   font-size: 11px;
+}
+
+.fs-18 {
+   font-size: 18px;
+}
+
+.fs-25 {
+   font-size: 25px;
+}
+
+#first-article {
+   font-size: 40px ;
+}
+
+h1,h2,h3,h4,h5,h6 {
+   color: #aa56ee;
+}
