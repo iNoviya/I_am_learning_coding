@@ -1,0 +1,61 @@
+div > img {
+   display: block;
+   margin: auto;
+}
+
+input[type=text] {
+   width: 50%;
+   padding: 10px 20px;
+   margin: 8px 25%;
+   box-sizing: border-box;
+ }
+ input[button]{
+   text-align: center;
+   text-decoration: none;
+   margin: 10% 50%;
+   float: left;
+   border: 2px solid;
+   border-radius: 10%;
+ }
+
+.button-conteiner {
+   display: flex;
+   justify-content: center;
+   align-items: center;
+}
+.bottons {
+   width: 20%;
+   height: 100px;
+   background-color: #3498db;
+   margin: 5% 30px;
+}
+
+.box-conteiner {
+   display: flex;
+   justify-content: center;
+   align-items: center;
+   height: 300px;
+}
+
+.box {
+   width: 25%;
+   height: 250px;
+   background-color: #81c0eb;
+   margin: 5% 10px;
+}
+
+.center-text{
+   text-align: center;
+}
+
+.email-conteiner {
+   text-align: center;
+}
+
+ .submit-button {
+   padding: 10px 20px;
+   width: 40%;
+   border: none;
+   border-radius: 5px;
+   cursor: pointer;
+ }

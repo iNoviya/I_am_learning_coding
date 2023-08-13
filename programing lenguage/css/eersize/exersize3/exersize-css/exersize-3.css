@@ -1,0 +1,11 @@
+.box {
+   width: 200px;
+   height: 200px;
+   margin:30px;
+   padding: 20px;
+   border: 20px;
+   float: left;
+}
+.clear {
+   clear: both;
+}

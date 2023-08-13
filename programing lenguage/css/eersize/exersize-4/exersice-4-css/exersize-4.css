@@ -1,0 +1,47 @@
+.conteiner {
+   display: flex;
+   height: 68%;
+   margin: 1% 2%;
+}
+.nav {
+   height: 8%;
+   margin: 1% auto;
+   background-color: violet;
+}
+
+.header {
+   height: 8%;
+   margin: 1% auto;
+   background-color: gray;
+}
+
+.left-block{
+   flex: 1;
+   background-color: #3498db;
+   color: white;
+   text-align: center;
+   margin: 0% 2%;
+}
+
+.right-block{
+   flex: 1;
+   background-color: rgb(30, 4, 175);
+   width: 66%;
+   margin: 0% 2%;
+}
+
+.sub-block{
+   background-color: #e74c3c;
+   color: white;
+   margin: 1% 2%;
+}
+
+.foother{
+   height: 8%;
+   margin: 1% auto;
+   background-color: orange;
+}
+
+.clear {
+   clear: both;
+}
