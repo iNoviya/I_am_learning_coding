@@ -1,27 +1,27 @@
 body {
-   background-color: #8cb0b3 ;
+   background-color: #E9ECEF ;
    /* E9ECEF  */
 }
 a:link{
    text-decoration: none;
-   color:black;
+   color:#EA5455;
 }
 a:visited{
    text-decoration: none;
-   color: #000;
+   color: #EA5455;
 }
 a:hover {
    text-decoration: none;
-   color: brown;
+   color: #002b5b;
 }
 a:active {
    text-decoration: none;
-   color: brown;
+   color: #002b5b;
 }
 
 nav {
    text-decoration: none;
-   background-color: rgb(107, 96, 96);
+   background-color: #002b5b;
 }
 footer{
    display: block;
