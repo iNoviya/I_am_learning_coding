@@ -1,3 +1,5 @@
 {
-   "livePreview.defaultPreviewPath": "/programing lenguage/html/html.html"
+   "livePreview.defaultPreviewPath": "/programing lenguage/html/html.html",
+   "editor.fontSize": 30,
+   "editor.tabSize": 3
 }
