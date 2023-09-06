@@ -13,15 +13,12 @@
     text-align: center;
     border: 2px solid white;
 }
-<<<<<<< HEAD
-=======
 .rg-cln-photo {
     border-radius: 50%;
     width: 60px;
     text-align: center;
     border: 2px solid white;
 }
->>>>>>> a3df16c (bootstrap-hw-3-v0)
 
 .a-none{
     text-decoration: none;
@@ -38,11 +35,7 @@
     border: 2px solid black;
 }
 .wid-80{
-<<<<<<< HEAD
-    width:80%;
-=======
     width:90%;
->>>>>>> a3df16c (bootstrap-hw-3-v0)
 }
 .post-text{
     width: 90%;
