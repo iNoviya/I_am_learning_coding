@@ -12,5 +12,5 @@ console.log(Boolean(areHas===132),"areHas = 132 ????")
 
 
 // how is that, it may true
-const b = "0";  
+const b = "-";  
 console.log(Boolean(b))
