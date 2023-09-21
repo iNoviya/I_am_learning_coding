@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+   <meta charset="UTF-8">
+   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+   <title>js_ex14_terbary_operator</title>
+</head>
+<body>
+   <h1> Temrbary operator </h1>
+   <h2 id="temp"> usarname</h2>
+   <script>
+      let temp = document.querySelector(`#temp`)
+      let userName = prompt("please write your user name")
+      temp.innerHTML = `${userName.length > 0 ? userName : "you didn't wrote your username"}`;
+
+   </script>
+</body>
+</html>
