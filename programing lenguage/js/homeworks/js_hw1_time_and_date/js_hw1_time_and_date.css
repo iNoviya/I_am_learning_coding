@@ -1,0 +1,23 @@
+body {
+   background-color: black;
+}
+
+.btnGroup {
+   max-height: 20%;
+}
+
+.typeText{
+   font-size: xx-large;
+   color:#3FD7C2;
+}
+.timeText{
+   font-size: medium;
+}
+h1 {
+   font-size: 50px;
+   color:white
+}
+h2 {
+   font-size: 30px;
+   color:gray;
+}
