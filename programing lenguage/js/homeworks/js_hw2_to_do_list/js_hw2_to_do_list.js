@@ -15,6 +15,9 @@ document.addEventListener("DOMContentLoaded",function(){
                 "d-flex",
                 "justify-content-between",
                 "align-items-center")
+            // li.innerHTML = `
+            //     <label for="task${task}" class="flex-grow-1 ml-2" >${task}</label>
+            // `
             li.innerHTML =`
             <input 
                 class="
