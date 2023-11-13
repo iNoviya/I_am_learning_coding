@@ -9,6 +9,6 @@ print(total)
 print("")
 
 
-for i in range(10):
-    for j in range(i):
-        print(j)
+for i in range(3):
+    for j in range(3):
+        print(i,j)

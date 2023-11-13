@@ -32,7 +32,7 @@ const menu = [
     category: "China",
     price: 5.99,
     img:
-      "https://img.freepik.com/free-photo/spicy-meat-with-lemon-pickles_140725-1869.jpg?size=626&ext=jpg&ga=GA1.1.68527928.1698616490&semt=ais",
+      "https://i2.wp.com/seonkyounglongest.com/wp-content/uploads/2019/10/Dan-Dan-Noodles-11.jpg?fit=2000%2C1333&ssl=1",
     desc: `Dan dan noodle, serving with green onion `,
   },
   {
