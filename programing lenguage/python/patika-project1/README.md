@@ -1,4 +1,4 @@
-# PATİKA PYTHON Funtemantel course homework1.
+# PATİKA PYTHON Funtemantel course project1.
 
 look homeworkpage press [here](https://academy.patika.dev/tr/courses/python-temel/proje)
 
