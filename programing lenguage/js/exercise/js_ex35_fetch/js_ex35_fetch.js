@@ -7,11 +7,11 @@ fetch("https://jsonplaceholder.typicode.com/posts").then(
 let SecDOM = document.getElementById("sec")
 
 fetch("https://jsonplaceholder.typicode.com/todos").then(
-   response2=> response2.json()
-).then(responseJson2 => {
+   response2=> response2.json())
+   .then(responseJson2 => {
    responseJson2.forEach(item => {
       let liDOM = document.createElement("li")
       liDOM.innerHTML = item.title
       SecDOM.appendChild(liDOM)
    });
-} )
+})
