@@ -1,0 +1,345 @@
+import java.io.*;
+import java.util.*;
+
+public class MapAnalyzer {
+   public static void main(String[] args) throws IOException {
+      if (args.length != 2) {
+         System.err.println("ERROR ::: ");
+         return;
+      }
+
+      String inputFile = args[0];
+      String outputFile = args[1];
+
+
+      MapAnalyzerProcessor mapAnalyzerProcessor = new MapAnalyzerProcessor();
+      mapAnalyzerProcessor.process(inputFile,outputFile);
+   }
+}
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+
+public class MapAnalyzerProcessor {
+   public void process(String inputFile, String outputFile) throws IOException {
+
+      FileHandler fileHandler = new FileHandler();
+
+      DijkstraAlgorithm dijkstraAlgorithm = new DijkstraAlgorithm();
+      KruskalAlgorithm kruskalAlgorithm = new KruskalAlgorithm();
+
+      List<Route> allRoutes = new ArrayList<>();
+      Neighborhood neighborhood = fileHandler.readFile(inputFile, allRoutes);
+      String startPoint = fileHandler.getStartPoint();
+      String endPoint = fileHandler.getEndPoint();
+
+      List<Route> fastestRoute = dijkstraAlgorithm.findFastestRoute(neighborhood, startPoint, endPoint);
+      List<Route> barelyConnectedMap = kruskalAlgorithm.findBarelyConnectedMap(allRoutes);
+      List<Route> fastestRouteBarelyConnected = dijkstraAlgorithm.findFastestRoute(new Neighborhood() {{
+         barelyConnectedMap.forEach(this::addConnection);
+      }}, startPoint, endPoint);
+
+
+
+      int originalDistance = fastestRoute.stream().mapToInt(Route::getRoadLength).sum();
+      int barelyConnectedDistance = fastestRouteBarelyConnected.stream().mapToInt(Route::getRoadLength).sum();
+      int originalMaterial = allRoutes.stream().mapToInt(Route::getRoadLength).sum();
+      int barelyConnectedMaterial = barelyConnectedMap.stream().mapToInt(Route::getRoadLength).sum();
+
+      fileHandler.writeOutput(outputFile, fastestRoute, barelyConnectedMap, fastestRouteBarelyConnected, startPoint, endPoint, originalDistance, barelyConnectedDistance, originalMaterial, barelyConnectedMaterial);
+   }
+
+
+}
+import java.util.*;
+
+/**
+ * This class preserves neighborly relations.
+ */
+
+public class Neighborhood {
+
+    // It maintains a list of neighbors for each city.
+   private Map<String, List<Route>> _neighborhoodslist;
+
+   // keeps all routes
+   private Map<Integer, Route> _routeMap;
+
+   /**
+    * contractor method
+    */
+   public Neighborhood() {
+      this._neighborhoodslist = new HashMap<>();
+      this._routeMap = new HashMap<>();
+   }
+
+
+   /**
+    *
+    * @param route   // route
+    */
+   public void addConnection(Route route) {
+      // Adds the route to a list with its id key.
+      _routeMap.put(route.getId(), route);
+
+      // Creates separate lists for arrival and destination points on maps,
+      // if there is no list of specified cities.
+      _neighborhoodslist.putIfAbsent(route.getStart(), new ArrayList<>());
+      _neighborhoodslist.putIfAbsent(route.getEnd(), new ArrayList<>());
+
+      // Adds routes to the list.
+      _neighborhoodslist.get(route.getStart()).add(route);
+      _neighborhoodslist.get(route.getEnd()).add(new Route(route.getEnd(), route.getStart(), route.getRoadLength(), route.getId()));
+   }
+
+
+   /**
+    * Returns a list of cities that are adjacent to the specified city by roads.
+    * @return city's neighborhoods
+    */
+   public List<Route> getRoutes(String city) {
+      return _neighborhoodslist.getOrDefault(city, new ArrayList<>());
+   }
+
+   /**
+    *
+    * @param id   number of route
+    * @return  return the desired path
+    */
+   public Route getRouteById(int id) {
+      return _routeMap.get(id);
+   }
+
+   /**
+    * Returns the names of neighboring cities.
+    * @return
+    */
+   public Set<String> getNeighborhoodCity() {
+      return _neighborhoodslist.keySet();
+   }
+
+
+}
+/**
+ * this class created for save route features
+ */
+public class Route {
+   private String _start;
+   private String _end;
+   private int _roadLength;
+   private int _id;
+
+   /**
+    * Contractor this class
+    * @param start   starting city
+    * @param end     arrived city
+    * @param distance   distance between 2 city
+    * @param id         way's specific numbers
+    */
+   public Route(String start, String end, int distance, int id) {
+      this._start = start;
+      this._end = end;
+      this._roadLength = distance;
+      this._id = id;
+   }
+
+   // its all encapsulation methods
+   public void setStart(String _start) {
+      this._start = _start;
+   }
+
+   public String getStart() {
+      return _start;
+   }
+
+   public void setSend(String _end) {
+      this._end = _end;
+   }
+
+   public String getEnd() {
+      return _end;
+   }
+
+   public void setRoadLength(int _roadLength) {
+      this._roadLength = _roadLength;
+   }
+   public int getRoadLength() {
+      return _roadLength;
+   }
+
+   public void setId(int _id) {
+      this._id = _id;
+   }
+   public int getId() {
+      return _id;
+   }
+
+   public boolean isReversed(String from, String to) {
+      return _start.equals(to) && _end.equals(from);
+   }
+}
+import java.util.*;
+
+/**
+ *This class is to connect specified cities using the minimum number of roads using the Kruskal algorithm.
+ * We use this algorithm because we avoid creating loops when connecting cities.
+ */
+
+
+public class KruskalAlgorithm {
+
+   /**
+    *
+    * @param allRoutes     It is a list indicating all routes.
+    * @return  return list barelyConnectedMap to find route
+    */
+   public List<Route> findBarelyConnectedMap(List<Route> allRoutes) {
+      // Sorts the route by distance. If there is a tie, it reorders according to ID numbers.
+      // This ensures that the one with the smallest id is selected in case of equality, as stated in the figure.
+      allRoutes.sort(Comparator.comparingInt(Route::getRoadLength).thenComparingInt(Route::getId));
+
+      // A map List is created that stores the start and end points of the roads for Union-Find structure
+      Map<String, String> parent = new HashMap<>();
+      for (Route route : allRoutes) {
+         parent.putIfAbsent(route.getStart(), route.getStart());
+         parent.putIfAbsent(route.getEnd(), route.getEnd());
+      }
+
+      // keeps the route
+      List<Route> barelyConnectedMap = new ArrayList<>();
+
+      // It finds the cities that are wanted to be connected to each other on the routes.
+      Set<String> cities = new HashSet<>();
+      for (Route route : allRoutes){
+         cities.add(route.getStart());
+         cities.add(route.getEnd());
+      }
+
+      // It combines parts according to the union-find structure.
+      for (Route route : allRoutes) {
+         String startPoint = findRoute(route.getStart(), parent);
+         String endPoint = findRoute(route.getEnd(), parent);
+         if (!endPoint.equals(startPoint)) {
+            barelyConnectedMap.add(route);
+            parent.put(startPoint, endPoint);
+         }
+
+         // If it exceeds or equals the number of unic cities in the routes,
+         // it terminates the loop. Because it is impossible for this to happen.
+         // (For n points, there are only (n-1) connection lines)
+         if (barelyConnectedMap.size() >= cities.size() ) break;
+      }
+      return barelyConnectedMap;
+   }
+
+
+   /**
+    * Finds the root for the specified city.
+    * @param city    city name
+    * @param parent  parent map list
+    * @return  city's features
+    */
+   private String findRoute(String city, Map<String, String> parent) {
+      while (!parent.get(city).equals(city)) {
+         parent.put(city, parent.get(parent.get(city)));
+         city = parent.get(city);
+      }
+      return city;
+   }
+}
+import java.util.*;
+
+/**
+ * This class finds the shortest path between 2 specified cities using the Dijkstra algorithm.
+ * For this purpose, it uses interconnected roads.
+ */
+
+public class DijkstraAlgorithm {
+
+   /**
+    * Finds the fastest route between 2 cities.
+    * @param neighborhood
+    * @param startPoint    starting point
+    * @param endPoint      destination
+    * @return     faster route
+    */
+   public List<Route> findFastestRoute(Neighborhood neighborhood, String startPoint, String endPoint) {
+
+
+      // It measures the entire distance entered from the starting point.
+      Map<String, Integer> distances = new HashMap<>();
+
+      // holds possible advancements.
+      Map<String, Route> roadHolder = new HashMap<>();
+
+      // It also collects the cities visited in a set to prevent re-entering the places visited.
+      Set<String> visitedCity = new HashSet<>();
+
+      // Sorts possible routes by shortest distance.
+      PriorityQueue<String> pq = new PriorityQueue<>(Comparator.comparingInt(distances::get));
+
+
+      // Sets the distance of all cities to the starting point as infinite.
+      for (String city : neighborhood.getNeighborhoodCity()) {
+         distances.put(city, Integer.MAX_VALUE);
+      }
+      // assume that, start point distance 0
+      distances.put(startPoint, 0);
+      pq.add(startPoint);
+
+      // begins to find the route
+      while (!pq.isEmpty()) {
+
+
+         // pulls the nearest city from the list.
+         String theNearestCity = pq.poll();
+
+         // If a city has been visited, it will skip that city.
+         // Prevents loop creation.
+         if (!visitedCity.add(theNearestCity)) continue;
+
+         // It takes in the neighbors of the city it is located in.
+         List<Route> routes = neighborhood.getRoutes(theNearestCity);
+
+         // It lists the cities first by their distance and then by their ID.
+         routes.sort(Comparator.comparingInt(Route::getRoadLength).thenComparingInt(Route::getId));
+
+
+         // try all neighborhood
+         for (Route route : routes) {
+            // If a city has been visited, it will skip that city.
+            // Prevents loop creation.
+            if (visitedCity.contains(route.getEnd())) continue;
+
+            // calculate new distance
+            int newDistance = distances.get(theNearestCity) + route.getRoadLength();
+
+            // If the new distance is shorter, it updates the list.
+            if (newDistance < distances.get(route.getEnd())) {
+               distances.put(route.getEnd(), newDistance);
+               roadHolder.put(route.getEnd(), route);
+               pq.add(route.getEnd());
+            }
+         }
+      }
+
+      // chose the smallest route
+      List<Route> path = new ArrayList<>();
+      Stack<Route> stack = new Stack<>();
+      String step = endPoint;
+
+      while (roadHolder.containsKey(step)) {
+         Route route = roadHolder.get(step);
+         stack.push(route);
+         step = route.getStart();
+      }
+
+      // I tried it out of curiosity, and it works like this too.
+      // It would be more understandable with while,
+      // but this is also nice. :D :D :D
+      for (; !stack.isEmpty(); path.add(stack.pop()));
+
+
+      return path;
+   }
+}

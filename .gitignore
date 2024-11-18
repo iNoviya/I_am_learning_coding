@@ -1,6 +1,5 @@
 # ignore ALL .pdf file s
 # ignore ALL .log files
 *.pdf
-programing lenguage/python/Assigment
+programing lenguage/c++
 programing lenguage/verilog
-programing lenguage/java/Assigment

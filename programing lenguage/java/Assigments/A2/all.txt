@@ -1,0 +1,892 @@
+/**
+ * @author b2230356164 M Mustafa KARARTAŞ
+ *
+ * This is the main class, the entire operation is collected in this class.
+ */
+
+
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.List;
+
+public class BookingSystem {
+   public static void main(String[] args) throws IOException {
+
+      /**
+       * Creates a class for file reading.
+       */
+      ReadFile io = new ReadFile(args[0]);
+
+      /**
+       * Creates a class for operations to be performed in the background.
+       */
+      OperationSystem operationSystem = new OperationSystem();
+      operationSystem.setInputList(io.readFile());
+
+      /**
+       * Processes are started in the background
+       */
+      operationSystem.handleCommands();
+
+      /**
+       * To print a file, the required class is called and the data is written to the file and the file is closed.
+       */
+      GlobalLogger.openFile(args[1]);
+      GlobalLogger.dumpLogsToFile();
+      GlobalLogger.closeFile();
+
+
+      /**
+       * To just delete the space in the last line
+       */
+      ReadFile trimFile = new ReadFile(args[1]);
+      List<String> trimList = trimFile.readFile();
+      try (BufferedWriter writer = new BufferedWriter(new FileWriter(args[1]))) {
+         for (int i = 0; i < trimList.size(); i++) {
+            if (i != trimList.size() - 1) {
+               writer.write(trimList.get(i));
+               writer.newLine();
+               writer.flush();
+            } else {
+               writer.write(trimList.get(i));
+            }
+
+         }
+      } catch (IOException e) {
+         System.out.println("Error writing to the file: " + e.getMessage());
+      }
+   }
+}
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
+public abstract class Bus {
+   int _id;
+   String _type;
+   String _boarding;
+   String _landing;
+   static int _rows;
+   double _price;
+   int _numberOfSeats;
+   List<Boolean> _sittingPlan;
+   double _revenue;
+
+
+   public Bus(String type, int id, String boarding, String landing, int rows, double price) {
+      this._id = id;
+      this._type = type;
+      this._boarding = boarding;
+      this._landing = landing;
+      this._rows = rows;
+      this._price = price;
+      this._numberOfSeats = calculatingNumberOfSeat();
+      this._sittingPlan = new ArrayList<>(Collections.nCopies(_numberOfSeats, false));
+   }
+
+   /**
+    * calculate number of seats for each sub-class
+    * @return _seats
+    */
+   public abstract int calculatingNumberOfSeat();
+
+   /**
+    * prints the upcoming trip information in the z report.
+    */
+   public abstract void zReport();
+
+   /**
+    * just printing specific voyage
+    */
+   public abstract void printVoyage();
+
+   /**
+    * Returns the necessary information when creating init voyage.
+    */
+   public abstract void setInitInfo();
+
+
+   /**
+    * Allows us to access the trip ID
+    * @return _id
+    */
+   public int getId() {
+      return this._id;
+   }
+
+   /**
+    * Stores a list showing whether seats are occupied or not.
+    * @return
+    */
+   public List<Boolean> getSittingPlan() {
+      return _sittingPlan;
+   }
+
+   /**
+    * It allows us to access the income we earned during the trip.
+    * @return _revenue
+    */
+   public double getRevenue() {
+      return this._revenue;
+   }
+
+   /**
+    * It allows us to set the income we earned during the trip.
+    * @return _revenue
+    */
+   public void setRevenue(double revenue) {
+      this._revenue = revenue;
+   }
+
+   /**
+    * It allows us to access the seat price.
+    * @return
+    */
+   public double getPrice() {
+      return this._price;
+   }
+}
+public class Standard extends Bus {
+   int _cuts;
+
+   public Standard(String type, int id, String boarding, String landing, int rows, double prize, int cuts) {
+      super(type, id, boarding, landing, rows, prize);
+      this._cuts = cuts;
+   }
+
+   /**
+    * It allows us to access deductions on ticket refunds.
+    * @return _cuts
+    */
+   public int getCuts() {
+      return this._cuts;
+   }
+
+   public int calculatingNumberOfSeat() {
+      return _rows * 4;
+   }
+
+   public void zReport() {
+      GlobalLogger.log("Voyage " + _id);
+      GlobalLogger.log(_boarding + "-" + _landing);
+      String text = "";
+      for (int i = 0; i < _sittingPlan.size(); i++) {
+         if (i % 4 == 0 && i != 0) text += "\n";
+         if (i % 4 == 2) text += "| ";
+         if (_sittingPlan.get(i) == true) {
+            text += "X ";
+         } else text += "* ";
+         if (i % 4 == 3) text = text.trim();
+      }
+      GlobalLogger.log(text);
+      GlobalLogger.log("Revenue: " + String.format("%.2f", _revenue));
+      GlobalLogger.log("----------------");
+   }
+
+   public void printVoyage() {
+      GlobalLogger.log("Voyage " + _id);
+      GlobalLogger.log(_boarding + "-" + _landing);
+      String text = "";
+      for (int i = 0; i < _sittingPlan.size(); i++) {
+         if (i % 4 == 0 && i != 0) text += "\n";
+         if (i % 4 == 2) text += "| ";
+         if (_sittingPlan.get(i) == true) {
+            text += "X ";
+         } else text += "* ";
+         if (i % 4 == 3) text = text.trim();
+      }
+      GlobalLogger.log(text);
+      GlobalLogger.log("Revenue: " + String.format("%.2f", _revenue));
+   }
+
+   public void setInitInfo() {
+      GlobalLogger.log("Voyage " + _id + " was initialized as a " + _type.toLowerCase() + " (2+2) voyage from " + _boarding + " to " + _landing + " with " + String.format("%.2f", _price) + " TL priced " + calculatingNumberOfSeat() + " regular seats. Note that refunds will be " + _cuts + "% less than the paid amount.");
+   }
+}
+public class Minibus extends Bus {
+
+    public Minibus(String type, int id, String boarding, String landing, int rows, double prize) {
+        super(type, id, boarding, landing, rows, prize);
+    }
+
+    public int calculatingNumberOfSeat() {
+        return _rows * 2;
+    }
+
+    public void zReport() {
+        GlobalLogger.log("Voyage " + _id );
+        GlobalLogger.log(_boarding +"-"+_landing);
+        String text ="";
+        for (int i = 0; i < _sittingPlan.size(); i++) {
+            if (i % 2 == 0 && i !=0) text = text + "\n";
+            if (_sittingPlan.get(i) == true){
+                text += "X ";
+            } else text += "* ";
+            if (i % 2 == 1 ) text = text.trim();
+        }
+        GlobalLogger.log(text);
+        GlobalLogger.log("Revenue: " + String.format("%.2f",getRevenue()));
+        GlobalLogger.log("----------------");
+    }
+
+    public void printVoyage(){
+        GlobalLogger.log("Voyage " + _id);
+        GlobalLogger.log(_boarding +"-"+_landing  );
+        String text ="";
+        for (int i = 0; i < _sittingPlan.size(); i++) {
+            if (i % 2 == 0 && i !=0) text = text + "\n";
+            if (_sittingPlan.get(i) == true){
+                text += "X ";
+            } else text += "* ";
+            if (i % 2 == 1 ) text = text.trim();
+        }
+        GlobalLogger.log(text);
+        GlobalLogger.log("Revenue: " + String.format("%.2f",getRevenue()) );
+    }
+
+    public void setInitInfo(){
+        GlobalLogger.log("Voyage "+_id + " was initialized as a " + _type.toLowerCase() + " (2) voyage from " + _boarding + " to " + _landing + " with " + String.format("%.2f",_price)  + " TL priced " + calculatingNumberOfSeat() + " regular seats. Note that minibus tickets are not refundable.");
+    }
+}
+import java.util.List;
+
+/**
+ * This class was created to identify possible errors.
+ * Although error messages for general errors are printed verbatim, in most cases they are resolved in code.
+ */
+public class ErrorLogger {
+
+   private static ErrorLogger instance;
+
+   private ErrorLogger() {
+   }
+
+   public static synchronized ErrorLogger getInstance() {
+      if (instance == null) {
+         instance = new ErrorLogger();
+      }
+      return instance;
+   }
+
+   /**
+    * Prints log messages to file.
+    * @param message
+    */
+   public void logError(String message) {
+      GlobalLogger.log(message);
+   }
+
+   /**
+    * It checks if there is another bus with the entered id.
+    * @param id
+    * @param _busList
+    * @return
+    */
+   public boolean isVoyageIdUnique(int id , List<Bus> _busList) {
+      for (int i = 0; i < _busList.size(); i++) {
+         if (_busList.get(i)._id == id) {
+            return false;
+         }
+      }
+      return true;
+   }
+
+   /**
+    * Controls the parameter numbers of entered commands
+    * @param list parameter
+    * @return
+    */
+   public boolean commendLengthCheck(String[] list) {
+      int parameterListLength = 0;
+      if (list.length == 0) {
+         return true;
+      }
+      switch (list[0]) {
+         case "INIT_VOYAGE": {
+            if (list[1].equals("Premium")) {
+               parameterListLength = 9;
+            } else if (list[1].equals("Standard")) {
+               parameterListLength = 8;
+            } else if (list[1].equals("Minibus")) {
+               parameterListLength = 7;
+            }
+            break;
+         }
+         case "Z_REPORT": {
+            parameterListLength = 1;
+            break;
+         }
+         case "PRINT_VOYAGE":
+         case "CANCEL_VOYAGE": {
+            parameterListLength = 2;
+            break;
+         }
+         case "SELL_TICKET":
+         case "REFUND_TICKET": {
+            parameterListLength = 3;
+            break;
+         }
+         default: {
+            logError("ERROR: There is no command namely " + list[0] + "!");
+            return true;
+         }
+      }
+
+      if (list.length != parameterListLength) {
+         logError("ERROR: Erroneous usage of \"" + list[0] + "\" command!");
+         return false;
+      } else return true;
+   }
+
+
+   /**
+    * It checks whether the given number is greater than 0.
+    * @param index
+    * @return
+    */
+   public boolean checkIndex(int index) {
+      if (index >= 0) return true;
+      else return false;
+   }
+
+   /**
+    * This does the same job as above.
+    * It only gives an extra error message in case of cancellation.
+    * @param index
+    * @return
+    */
+   public boolean checkIndexCancel(int index) {
+      if (index >= 0) return true;
+      else {
+         logError("ERROR: " + index + " is not a positive integer, ID of a voyage must be a positive integer!");
+         return false;
+      }
+   }
+
+   /**
+    * Controls the numerical parameters for the trips to be created.
+    * @param list
+    * @return
+    */
+   public boolean checkParameterInitVoyage(String[] list) {
+      // id list[2];
+      if (!checkIndex(Integer.parseInt(list[2]))) {
+         logError("ERROR: " + list[2] + " is not a positive integer, ID of a voyage must be a positive integer!");
+         return false;
+      }
+      ;
+      // row list[5]
+      if (!checkIndex(Integer.parseInt(list[5]))) {
+         logError("ERROR: " + list[5] + " is not a positive integer, number of seat rows of a voyage must be a positive integer!");
+         return false;
+      }
+      // price list[6]
+      if (!checkIndex((int) Double.parseDouble(list[6]))) {
+         logError("ERROR: " + list[6] + " is not a positive number, price must be a positive number!");
+         return false;
+      }
+
+      switch (list[1]) {
+         case "Premium": {
+            // cuts list[7]
+            if (!checkIndex((int) Double.parseDouble(list[7]))) {
+               logError("ERROR: " + list[7] + " is not an integer that is in range of [0, 100], refund cut must be an integer that is in range of [0, 100]!");
+               return false;
+            }
+
+            // premium fee list[8]
+            if (!checkIndex((int) Double.parseDouble(list[8]))) {
+               logError("ERROR: " + list[8] + " is not a non-negative integer, premium fee must be a non-negative integer!");
+               return false;
+            }
+            break;
+         }
+         case "Standard": {
+            // cuts list[7]
+            if (!checkIndex((int) Double.parseDouble(list[7]))) {
+               logError("ERROR: " + list[7] + " is not an integer that is in range of [0, 100], refund cut must be an integer that is in range of [0, 100]!");
+               return false;
+            }
+         }
+      }
+      return true;
+   }
+
+   /**
+    * Controls numerical parameters for ticket sales.
+    * @param list command
+    * @param ticketList tickets to buy
+    * @param maxSeat numbers of total seats
+    * @return
+    */
+   public boolean checkParameterSellTicket(String[] list ,List<Integer> ticketList, int maxSeat){
+      if (!checkIndex(Integer.parseInt(list[1]))){
+         logError("ERROR: "+ list[1] +" is not a positive integer, seat number must be a positive integer!");
+         return false;
+      }
+      for (int ticketNo : ticketList){
+         if (ticketNo < 0){
+            GlobalLogger.log("ERROR: "+ ticketNo +" is not a positive integer, seat number must be a positive integer!");
+            return false;
+         } else if (ticketNo > maxSeat) {
+            GlobalLogger.log("ERROR: There is no such a seat!");
+            return false;
+         }
+      }
+      return true;
+   }
+
+   /**
+    * Controls numerical parameters for ticket refund.
+    * @param list command
+    * @param ticketList tickets to buy
+    * @param maxSeat   numbers of total seats
+    * @return
+    */
+   public boolean checkParameterRefundTicket(String[] list ,List<Integer> ticketList, int maxSeat){
+      if (!checkIndex(Integer.parseInt(list[1]))){
+         logError("ERROR: "+ list[1] +" is not a positive integer, seat number must be a positive integer!");
+         return false;
+      }
+      for (int ticketNo : ticketList){
+         if (ticketNo < 0){
+            GlobalLogger.log("ERROR: "+ ticketNo +" is not a positive integer, seat number must be a positive integer!");
+            return false;
+         } else if (ticketNo > maxSeat) {
+            GlobalLogger.log("ERROR: There is no such a seat!");
+            return false;
+         }
+      }
+      return true;
+   }
+
+   /**
+    * Controls numerical parameters for cancel voyage.
+    * @param id
+    * @return
+    */
+   public boolean checkParameterCancelVoyage(int id){
+      if (id <0){
+         logError("ERROR: "+ id + " is not a positive integer, ID of a voyage must be a positive integer!\n");
+         return false;
+      }
+      return true;
+   }
+}
+import java.util.*;
+
+public class TicketTransactions {
+   private final Bus _bus;
+   private double _sellAmount;
+   private double _refundAmount;
+   private double _cancelAmount;
+
+   /**
+    * It is for us to reach class.
+    * Allows us to access the bus class
+    * @param bus  is the class reached
+    */
+   public TicketTransactions(Bus bus) {
+      this._bus = bus;
+   }
+
+   /**
+    * To set the amount to be refunded.
+    * @param refundAmount  refund amount
+    */
+   public void setRefundAmount(double refundAmount) {
+      this._refundAmount = refundAmount;
+   }
+
+   /**
+    * To set the amount to be sales amount.
+    * @param sellAmount sell amount
+    */
+   public void setSellAmount(double sellAmount) {
+      this._sellAmount = sellAmount;
+   }
+
+   /**
+    * To get the amount to be sales amount.
+    * @return
+    */
+   public double getSellAmount() {
+      return this._sellAmount;
+   }
+
+   /**
+    * To get the amount to be refunded.
+    * @return
+    */
+   public double getRefundAmount() {
+      return this._refundAmount;
+   }
+
+   /**
+    * Sets the refund amount in case of trip cancellation.
+    * @param cancelAmount
+    */
+   public void setCancelAmount(double cancelAmount) {
+      this._cancelAmount = cancelAmount;
+   }
+
+   /**
+    * Gets the refund amount in case of trip cancellation.
+    * @return
+    */
+   public double getCancelAmount() {
+      return this._cancelAmount;
+   }
+
+   /**
+    * It checks whether the seats to be sold are sold or not.
+    * @param seatsNumbers seat number
+    * @return
+    */
+   public Boolean checkSell(List<Integer> seatsNumbers) {
+      List<Boolean> seats = _bus.getSittingPlan();
+      for (int seatNumber : seatsNumbers) {
+         if (seats.get(seatNumber - 1)) {
+            GlobalLogger.log("ERROR: One or more seats already sold!");
+            return false;
+         }
+      }
+      return true;
+   }
+
+   /**
+    * It checks whether the tickets and seats to be returned are full.
+    * @param seatsNumbers seat number
+    * @return
+    */
+   public Boolean checkRefund(List<Integer> seatsNumbers) {
+      List<Boolean> seats = _bus.getSittingPlan();
+      for (int seatNumber : seatsNumbers) {
+         if (!seats.get(seatNumber - 1)) {
+            return false;
+         }
+      }
+      return true;
+   }
+
+   /**
+    * Performs ticket sales.
+    * @param seatsNumber
+    */
+   public void sellTicket(List<Integer> seatsNumber) {
+      List<Boolean> seats = _bus.getSittingPlan();
+
+      for (int seatNumber : seatsNumber) {
+         if (!seats.get(seatNumber - 1)) {
+            seats.set(seatNumber - 1, true);
+         }
+      }
+      double sellAmount = 0.00;
+      if (_bus instanceof Premium) {
+         for (int seatNumber : seatsNumber) {
+            if (seatNumber % 3 == 1) {
+               sellAmount += ((Premium) _bus).getPremiumPrice();
+            } else sellAmount += _bus.getPrice();
+         }
+      } else {
+         sellAmount += _bus.getPrice() * seatsNumber.size();
+
+      }
+      setSellAmount(sellAmount);
+      _bus.setRevenue(_bus._revenue + sellAmount);
+   }
+
+   /**
+    * performs the ticket refund process.
+    * @param seatsNumbers
+    */
+   public void refundTickets(List<Integer> seatsNumbers) {
+      List<Boolean> seats = _bus.getSittingPlan();
+
+      double refundAmount = 0.00;
+
+      for (int seatNumber : seatsNumbers) {
+         if (seats.get(seatNumber - 1)) {
+            seats.set(seatNumber - 1, false);
+         }
+      }
+      if (_bus instanceof Premium) {
+         for (int seatNumber : seatsNumbers) {
+            if (seatNumber % 3 == 1) {
+               refundAmount += ((Premium) _bus).getPremiumPrice() * ((double) (100 - ((Premium) _bus).getCuts()) / 100);
+            } else refundAmount += _bus.getPrice() * ((double) (100 - ((Premium) _bus).getCuts()) / 100);
+         }
+      } else if (_bus instanceof Standard) {
+         refundAmount += _bus.getPrice() * (100 - (double) ((Standard) _bus).getCuts()) / 100 * seatsNumbers.size();
+      }
+      setRefundAmount(refundAmount);
+      _bus.setRevenue(_bus.getRevenue() - refundAmount);
+   }
+
+   /**
+    * She checks whether the bus is a minibus or not.
+    * because there is no refund for Minibus
+    * @return
+    */
+   public boolean checkRefundMinibus() {
+      if (_bus instanceof Minibus) {
+         GlobalLogger.log("ERROR: Minibus tickets are not refundable!");
+         return false;
+      } else return true;
+   }
+
+
+   /**
+    * Calculates the amount to be refunded in case of trip cancellation.
+    */
+   public void cancelAmountPrice() {
+      List<Boolean> seats = _bus.getSittingPlan();
+      double cancelAmount = 0.00;
+      for (int i = 0; i < seats.size(); i++) {
+         if (seats.get(i)) {
+            if (_bus instanceof Premium) { // check premium seats
+               if (i % 3 == 0) {
+                  cancelAmount += ((Premium) _bus).getPremiumPrice();
+               } else cancelAmount += _bus.getPrice();
+            } else if (_bus instanceof Standard) {
+               cancelAmount += ((Standard) _bus).getPrice();
+            } else if (_bus instanceof Minibus) {
+               cancelAmount += ((Minibus) _bus).getPrice();
+            }
+         }
+      }
+      setCancelAmount(cancelAmount);
+      _bus.setRevenue(_bus.getRevenue() - cancelAmount);
+   }
+}
+import java.util.*;
+
+public class OperationSystem {
+
+   private List<String> _inputList;
+   private List<Bus> _busList = new ArrayList<>();
+
+   /**
+    * Assigns the data received from the input file to a list.
+    *
+    * @param inputList
+    */
+   public void setInputList(List<String> inputList) {
+      this._inputList = inputList;
+   }
+
+   /**
+    * accessing _inputList
+    *
+    * @return
+    */
+   public List<String> getInputList() {
+      return _inputList;
+   }
+
+   /**
+    * It is the main method used to process commands.
+    */
+   public void handleCommands() {
+      for (String line : _inputList) {
+         GlobalLogger.log("COMMAND: " + line);
+         String[] splited = line.split("\t");
+         String parameter = splited[0].trim();
+         // Controls the parameter numbers of entered commands
+         if (ErrorLogger.getInstance().commendLengthCheck(splited)) {
+            switch (parameter) {
+               // create a voyage
+               case "INIT_VOYAGE": {
+                  // Controls the numerical parameters for the trips to be created.
+                  if (ErrorLogger.getInstance().checkParameterInitVoyage(splited)) {
+                     if (isVoyageIdUnique(Integer.parseInt(splited[2]))) {
+                        if (splited[1].equals("Premium")) {
+                           Premium premium = new Premium(splited[1], Integer.parseInt(splited[2]), splited[3], splited[4], Integer.parseInt(splited[5]), Double.parseDouble(splited[6]), Integer.parseInt(splited[7]), Integer.parseInt(splited[8]));
+                           premium.setRevenue(0.00);
+                           _busList.add(premium);
+                           premium.setInitInfo();
+                        } else if (splited[1].equals("Standard")) {
+                           Standard standard = new Standard(splited[1], Integer.parseInt(splited[2]), splited[3], splited[4], Integer.parseInt(splited[5]), Double.parseDouble(splited[6]), Integer.parseInt(splited[7]));
+                           standard.setRevenue(0.00);
+                           _busList.add(standard);
+                           standard.setInitInfo();
+                        } else if (splited[1].equals("Minibus")) {
+                           Minibus minibus = new Minibus(splited[1], Integer.parseInt(splited[2]), splited[3], splited[4], Integer.parseInt(splited[5]), Double.parseDouble(splited[6]));
+                           minibus.setRevenue(0.00);
+                           _busList.add(minibus);
+                           minibus.setInitInfo();
+                        }
+                     } else GlobalLogger.log("ERROR: There is already a voyage with ID of " + splited[2] + "!");
+                  }
+                  break;
+               }
+               // print zReport
+               case "Z_REPORT": {
+                  if (!_busList.isEmpty()) {
+                     GlobalLogger.log("Z Report:");
+                     GlobalLogger.log("----------------");
+                     _busList.sort(Comparator.comparingInt(Bus::getId));
+                     for (Bus bus : _busList) {
+                        bus.zReport();
+                     }
+                  } else {
+                     GlobalLogger.log("Z Report:");
+                     GlobalLogger.log("----------------");
+                     GlobalLogger.log("No Voyages Available!");
+                     GlobalLogger.log("----------------");
+                  }
+                  break;
+               }
+               // print specific voyage
+               case "PRINT_VOYAGE": {
+                  int searchedID = Integer.parseInt(splited[1]);
+                  if (searchedID > 0) {
+                     int index = findIndexOfId(Integer.parseInt(splited[1]));
+                     if (index >= 0) {
+                        _busList.get(index).printVoyage();
+                     }
+                  } else
+                     GlobalLogger.log("ERROR: " + searchedID + " is not a positive integer, ID of a voyage must be a positive integer!");
+                  break;
+               }
+               // handles ticket sell.
+               case "SELL_TICKET": {
+                  int index = findIndexOfId(Integer.parseInt(splited[1]));
+                  List<Integer> ticketsNumbers = createTicketsList(splited[2]);
+
+                  // Checks whether the parameters are appropriate
+                  if (ErrorLogger.getInstance().checkIndex(index) && ErrorLogger.getInstance().checkParameterSellTicket(splited, ticketsNumbers, _busList.get(index)._numberOfSeats)) {
+                     TicketTransactions ticketTransactions = new TicketTransactions(_busList.get(index));
+                     // It checks whether the seats to be sold are sold or not.
+                     if (ticketTransactions.checkSell(ticketsNumbers)) {
+                        ticketTransactions.sellTicket(ticketsNumbers);
+                        StringBuilder text = new StringBuilder();
+                        for (int number : ticketsNumbers) {
+                           text.append(number).append("-");
+                        }
+                        if (text.length() - 1 >= 0) {
+                           GlobalLogger.log("Seat " + text.substring(0, text.length() - 1) + " of the Voyage " + _busList.get(index)._id + " from " + _busList.get(index)._boarding + " to " + _busList.get(index)._landing + " was successfully sold for " + String.format("%.2f", ticketTransactions.getSellAmount()) + " TL.");
+                        }
+                     }
+                  }
+
+                  break;
+               }
+               // handles ticket refunds.
+               case "REFUND_TICKET": {
+                  int index = findIndexOfId(Integer.parseInt(splited[1]));
+                  List<Integer> ticketsNumbers = createTicketsList(splited[2]);
+
+                  //  Checks whether the parameters are appropriate
+                  if (ErrorLogger.getInstance().checkIndex(index) && ErrorLogger.getInstance().checkParameterRefundTicket(splited, ticketsNumbers, _busList.get(index)._numberOfSeats)) {
+                     TicketTransactions ticketTransactions = new TicketTransactions(_busList.get(index));
+                     // It checks that the type of vehicle is minibus and that the seats to be returned are not sold.
+                     if (ticketTransactions.checkRefundMinibus() && ticketTransactions.checkRefund(ticketsNumbers)) {
+                        ticketTransactions.refundTickets(ticketsNumbers);
+                        String text = "";
+                        for (int number : ticketsNumbers) {
+                           text += number + "-";
+                        }
+                        if (text.length() - 1 >= 0) {
+                           GlobalLogger.log("Seat " + text.substring(0, text.length() - 1) + " of the Voyage " + _busList.get(index)._id + " from " + _busList.get(index)._boarding + " to " + _busList.get(index)._landing + " was successfully refunded for " + String.format("%.2f", ticketTransactions.getRefundAmount()) + " TL.");
+                        }
+                     }
+                  }
+                  break;
+               }
+               // handles ticket cancel voyage
+               case "CANCEL_VOYAGE": {
+                  int searchedID = Integer.parseInt(splited[1]);
+                  int index = 0;
+
+                  boolean isVoyageID = _busList.stream().anyMatch(bus -> bus.getId() == searchedID);
+
+                  for (int i = 0; i < _busList.size(); i++) {
+                     if (_busList.get(i).getId() == searchedID) {
+                        index = i;
+                     }
+                  }
+                  // check the index
+                  if (ErrorLogger.getInstance().checkIndexCancel(index)) {
+                     // check the parameter
+                     if (ErrorLogger.getInstance().checkParameterCancelVoyage(searchedID)) {
+                        if (!isVoyageID) {
+                           GlobalLogger.log("ERROR: There is no voyage with ID of " + searchedID + "!");
+                        } else {
+                           TicketTransactions ticketTransactions = new TicketTransactions(_busList.get(index));
+                           ticketTransactions.cancelAmountPrice();
+                           GlobalLogger.log("Voyage " + _busList.get(index)._id + " was successfully cancelled!");
+                           GlobalLogger.log("Voyage details can be found below:");
+                           _busList.get(index).printVoyage();
+                           _busList.remove(index);
+                        }
+                     }
+                  } else {
+                     GlobalLogger.log("ERROR: " + searchedID + " is not a positive integer, ID of a voyage must be a positive integer!");
+                  }
+                  break;
+               }
+            }
+         }
+
+      }
+
+      // If there is no Z report at the end of the file,
+      if (!_inputList.get(_inputList.size() - 1).equals("Z_REPORT")) {
+         GlobalLogger.log("Z Report:");
+         GlobalLogger.log("----------------");
+         if (_busList.isEmpty()) {
+            GlobalLogger.log("No Voyages Available!");
+            GlobalLogger.log("----------------");
+         } else {
+            _busList.sort(Comparator.comparingInt(Bus::getId));
+            for (Bus bus : _busList) {
+               bus.zReport();
+            }
+         }
+      }
+   }
+
+   // It finds the index of the element with the given id in the list.
+   private int findIndexOfId(int searchId) {
+      for (int i = 0; i < _busList.size(); i++) {
+         if (_busList.get(i).getId() == searchId) {
+            return i;
+         }
+      }
+      GlobalLogger.log("ERROR: There is no voyage with ID of " + searchId + "!");
+      return -1;
+   }
+
+   /**
+    * It checks whether the ticket numbers entered as parameters comply with the parameters.
+    *  If it matches the parameters, it returns a list.
+    * @param ticketsText
+    * @return
+    */
+   private List<Integer> createTicketsList(String ticketsText) {
+      String[] line = ticketsText.split("_");
+      List<Integer> ticketsNumbers = new ArrayList<>();
+      for (String ticketNumber : line) {
+         ticketsNumbers.add(Integer.parseInt(ticketNumber));
+      }
+      return ticketsNumbers;
+   }
+
+   /**
+    * It checks if there is another bus with the entered id.
+    *
+    * @param id
+    * @return
+    */
+   public boolean isVoyageIdUnique(int id) {
+      for (int i = 0; i < _busList.size(); i++) {
+         if (_busList.get(i)._id == id) {
+            return false;
+         }
+      }
+      return true;
+   }
+}
