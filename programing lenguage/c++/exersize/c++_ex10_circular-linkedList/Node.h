@@ -15,8 +15,7 @@ public:
       next = nullptr;
       data = value;
    }
-   ~Node();
+   ~Node() {}
 };
-
 
 #endif

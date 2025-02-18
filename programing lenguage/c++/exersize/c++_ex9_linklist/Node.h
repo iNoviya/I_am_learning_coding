@@ -1,24 +1,32 @@
 #ifndef NODE_H
 #define NODE_H
 
-#include <iostream>
-using namespace std;
-
 template <typename T>
-class Node {
-public:
-    T data;       // Veri kısmı
-    Node<T>* next;  // Sonraki düğüme işaretçi (Node türünde)
+class Node
+{
+private:
+    T data;
+    Node<T>* next;
 
-    // Kurucu metot
-    Node(T value) {
-        data = value;
-        next = nullptr;
+public:
+    // Constructor with parameter
+    Node(T value) : data(value), next(nullptr) {}
+
+    ~Node() {}
+
+    Node<T>* getNext() // Pointer döndürmeli
+    {
+        return this->next;
     }
 
-    // Destructor
-    ~Node() {
-        
+    T getData()
+    {
+        return this->data;
+    }
+
+    void setNext(Node<T>* newNext) // Pointer kullanımı doğru olmalı
+    {
+        this->next = newNext;
     }
 };
 
