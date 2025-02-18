@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 #include "Node.h"
 #include <iostream>
 
@@ -7,10 +8,20 @@ using namespace std;
 #define LINKLIST_H
 
 template <typename T>
+=======
+#ifndef LINKLIST_H
+#define LINKLIST_H
+
+#include <vector>
+
+using namespace std;
+template <T>;
+>>>>>>> mskarats/main
 
 class LinkList
 {
 private:
+<<<<<<< HEAD
    Node<T> *head;
 
 public:
@@ -140,3 +151,23 @@ public:
 }
 
 #endif
+=======
+   vector<T> data;
+   
+public:
+   LinkList(/* args */);
+   ~LinkList();
+};
+
+LinkList::LinkList(/* args */)
+{
+}
+
+LinkList::~LinkList()
+{
+}
+
+
+
+#endif LINKLIST_H
+>>>>>>> mskarats/main
